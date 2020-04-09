@@ -11,5 +11,6 @@ int main()
      return a;
      void yloo();
      void yio();
+     void yyy();
 }
 

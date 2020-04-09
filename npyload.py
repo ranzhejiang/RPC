@@ -10,5 +10,6 @@ int main()
      int b;
      return a;
      void yloo();
+     void yio();
 }
 

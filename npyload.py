@@ -9,5 +9,6 @@ int main()
 {
      int a;
      return a;
+     void yyyy();
 }
 

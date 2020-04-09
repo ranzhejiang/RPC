@@ -7,7 +7,8 @@ def init():
     return 5+5
 int main()
 {
-     int a;
+     int b;
      return a;
+     void yloo();
 }
 

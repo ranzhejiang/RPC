@@ -4,7 +4,7 @@ print(test[0])
 def coder():
     return 0
 def init():
-    return 5+5
+    return abs(int yh)
 int main()
 {
      int b;
@@ -12,5 +12,6 @@ int main()
      void yloo();
      void yio();
      void yyy();
+     void forward();
 }
 

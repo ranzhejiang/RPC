@@ -4,6 +4,7 @@ import time
 if __name__ == '__main__':
     c = rpclient.RPCClient()
     c.connect('127.0.0.1', 7042)
+    print("Do you feel well")
     # res2 = c.add(2,100,c=5)
     # print(f'res2: [{res2}]')
     for i in range(10):

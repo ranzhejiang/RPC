@@ -32,6 +32,7 @@ class RPCServer(RPCStub,asyncore.dispatcher):
     def prefork(self, n):
         '''参照tornado的高并发模式进行prefork操作'''
         for i in range(n):
+            print("come on!!")
             pid = os.fork()
             if pid < 0:  # fork error
                 return

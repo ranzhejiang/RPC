@@ -14,6 +14,8 @@ class TCPClient(object):
 
     def send(self, data):
         '''将数据发送到Server端'''
+        print()
+        print()
         self.sock.sendall(data)
 
     def recv(self, length):

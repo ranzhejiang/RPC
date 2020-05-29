@@ -2,6 +2,7 @@ import rpclient
 import time
 
 if __name__ == '__main__':
+    print()
     c = rpclient.RPCClient()
     c.connect('127.0.0.1', 7042)
     # res2 = c.add(2,100,c=5)

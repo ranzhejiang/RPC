@@ -8,6 +8,8 @@ def add(a, b, c=12):
     return sum
 # def close():
 #     pass
+t = rpcserver.func_proxy()
+t.loop_pro(6226)
 s = rpcserver.RPCServer("localhost", 7042)
 s.register_function(add) # 注册方法
 # s.register_function(close)

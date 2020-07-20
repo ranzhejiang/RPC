@@ -8,6 +8,45 @@ import os
 from io import BytesIO as StringIO
 import time
 import struct
+import func_local
+
+class func_proxy(object):
+    def __init__(self):
+        self.func_pro = {}
+        # self.set_reuse_addr()
+        self.sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock2.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        print("出事")
+
+    def bind_listen_pro(self, port):
+        print("执行了")
+        print(port)
+        self.sock2.bind(("localhost", port))
+        self.sock2.listen(5)
+
+    def func_pro_register(self):
+        '''获取Client端信息'''
+        print("最近还好吗")
+        (client_socket2, address) = self.sock2.accept()
+        msg = client_socket2.recv(1024)
+        print("func_proxy is:",msg)
+        msg = json.loads(msg)
+        print(msg['max_num'])
+        client_socket2.close()
+
+    def loop_pro(self,port):
+        self.bind_listen_pro(port)
+        pid = os.fork()
+        if pid < 0:
+            return
+        if pid >0:
+            print("父进程:",os.getpid())
+            pass
+        if pid == 0:
+            print("子进程:",os.getpid())
+            return
+        while True:
+            self.func_pro_register()
 
 class RPCStub(object):
     def __init__(self):
@@ -33,6 +72,7 @@ class RPCServer(RPCStub,asyncore.dispatcher):
         '''参照tornado的高并发模式进行prefork操作'''
         for i in range(n):
             print("come on!!")
+            print("进程:",os.getpid())
             pid = os.fork()
             if pid < 0:  # fork error
                 return
@@ -52,6 +92,7 @@ class RPCServer(RPCStub,asyncore.dispatcher):
 class JSONRPC(object):
     '''json数据的处理'''
     def __init__(self):
+        # func_proxy.__init__(self)
         self.data = None
 
     def from_data(self, data):
@@ -64,7 +105,15 @@ class JSONRPC(object):
         method_name = self.data['method_name'] 
         method_args = self.data['method_args']
         method_kwargs = self.data['method_kwargs']
-        res = self.funs[method_name](*method_args, **method_kwargs)
+        if method_name == 'max_num':
+            f = func_local.Func_local()
+            f.connect('127.0.0.1', 2000)
+            res_func = f.max_num(1,2,3)
+            res_func = json.loads(res_func)
+            print("res_func is",res_func)
+            res = res_func['res']
+        else:
+            res = self.funs[method_name](*method_args, **method_kwargs)
         data = {"res": res}
         return json.dumps(data).encode()
 
@@ -72,6 +121,7 @@ class RPCHandler(asyncore.dispatcher_with_send,JSONRPC):
     def __init__(self,sock,addr,funs):
         asyncore.dispatcher_with_send.__init__(self, sock=sock)
         JSONRPC.__init__(self)
+        # func_proxy.__init__(self)
         self.addr = addr
         self.rbuf = StringIO() #这是服务器用来接收客户端消息的用户定义缓冲，注意这里不同于socket的套接字缓冲
         self.funs = {}  # 用来重定向注册时的远程函数指向，使得可以跨类调用

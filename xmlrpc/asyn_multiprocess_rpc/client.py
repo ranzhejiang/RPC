@@ -9,9 +9,9 @@ if __name__ == '__main__':
     # res2 = c.add(2,100,c=5)
     # print(f'res2: [{res2}]')
     for i in range(10):
-        res2 = c.multiply(2,100)
+        res2 = c.rzj(2,100)
         print(f'res2: [{res2}]')
-        res = c.max_num(1,2,3)
-        print(f'res: [{res}]') 
+        # res = c.add(1,2,3)
+        # print(f'res: [{res}]') 
         time.sleep(1)
     # c.close()

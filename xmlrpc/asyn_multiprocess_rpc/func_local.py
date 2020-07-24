@@ -24,11 +24,14 @@ class RPCStub(object):
         return a*b
     def __getattr__(self, function):
         def _func(*args, **kwargs):
-            d = {'method_name': function, 'method_args': args, 'method_kwargs': kwargs}
+            # print("你发送了什么")
+            print("function is:",type(function))
+            print("args is:",args[0],type(args[0]))
+            d = {'method_name':args[0], 'method_args': args[1:], 'method_kwargs': kwargs}
             self.send(json.dumps(d).encode('utf-8')) # 发送数据
             data = self.recv(1024) # 接收方法执行后返回的结果
             return data
-
+        print("开始发送")
         setattr(self, function, _func)
         return _func
 class Func_local(TCPClient, RPCStub):

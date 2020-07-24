@@ -5,6 +5,7 @@ from xml.parsers import expat
 from decimal import Decimal
 import io
 import time
+import string
 
 __version__ = '%d.%d' % sys.version_info[:2]
 
@@ -41,12 +42,6 @@ class Marshaller:
         self.mem = {}
         self.data = None
         self.encoding = encoding
-    
-    dispatch = {}      # 不同类型的参数使用不同的封装，故按照类型进行分配方法
-    dispatch[bool] = dump_bool
-    dispatch[int] = dump_int
-    dispatch[float] = dump_float
-    dispatch[str] = dump_string
 
     def dumps(self, values):
         out = []
@@ -97,6 +92,12 @@ class Marshaller:
     def dump_list(self, value, write): # ?????
         write("<value><list>")
 
+    dispatch = {}      # 不同类型的参数使用不同的封装，故按照类型进行分配方法
+    dispatch[bool] = dump_bool
+    dispatch[int] = dump_int
+    dispatch[float] = dump_float
+    dispatch[str] = dump_string
+
 class UnMarshaller:
     def __init__(self):
         self._type = None
@@ -139,16 +140,6 @@ class UnMarshaller:
     
     def finish(self):
         return tuple(self._stack)
- 
-
-    dispatch = {}
-    dispatch["boolean"] = do_boolean
-    dispatch["int"] = do_int
-    dispatch["float"] = do_float
-    dispatch["string"] = do_string
-    dispatch["methodName"] = do_methodName
-    dispatch["parameter"] = do_parameter
-    dispatch["value"] = do_value
 
     def do_boolean(self, data):
         if data == "0":
@@ -166,7 +157,6 @@ class UnMarshaller:
     
 
     def do_string(self, data):
-        data = data.decode(self._encoding)
         self.append(data)
     
 
@@ -178,13 +168,21 @@ class UnMarshaller:
         self._type = "parameter"
  
 
-    def do_methodName(self, data):
-        data = data.decode(self._encoding)
+    def do_methodName(self, data):   #多进程时的可扩展性
         self._methodname = data
         self._type = "methodName"
 
-    def do_value(self):
+    def do_value(self, data):
         self._type = "value"
+    
+    dispatch = {}
+    dispatch["boolean"] = do_boolean
+    dispatch["int"] = do_int
+    dispatch["float"] = do_float
+    dispatch["string"] = do_string
+    dispatch["methodName"] = do_methodName
+    dispatch["parameter"] = do_parameter
+    dispatch["value"] = do_value
 
     
 
@@ -235,11 +233,15 @@ class ClientRPC:
     def __getattr__(self, function):
         def method(*args):
             self._request_list.append(function)
+            print(args)
+            print(function)
             return self._clientstub.dump(args, function)
         setattr(self, function, method)
         data = method()
-        self.send(data)
-        response = self.recv()
+        print(data)
+        #self.send(data)
+        #response = self.recv()
+        #return response
 
         
     def init(self,host, port):
@@ -247,7 +249,7 @@ class ClientRPC:
         s = ClientStub()
         self._transport = t
         self._clientstub = s
-        self._transport.connect(host, port)
+       # self._transport.connect(host, port)
     
     def send(self, data):
         self._transport.send(data)

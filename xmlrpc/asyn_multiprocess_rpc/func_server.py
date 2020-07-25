@@ -1,4 +1,5 @@
 # func_server.py
+# 远端服务器
 
 import func_remote
 

@@ -17,7 +17,7 @@ c = ClientRPC()
 
 c.init("192.74.80", 8080)
 
-c.find(params)
+c.find(6,7)
 
 re = s.dispatch(result)
 

@@ -36,8 +36,7 @@ class Parser:
             del self._target, self._parser 
             parser.Parse(b"", True) 
 
-class Marshaller:
-    # xml文件封包器
+class Marshaller:          
     def __init__(self, encoding):
         self.mem = {}
         self.data = None
@@ -56,8 +55,7 @@ class Marshaller:
         result = "".join(out)
         return result
 
-    def _dump(self, value, write):
-        # 判断能否解析目标参数类型, 并使用对应函数
+    def _dump(self, value, write):      
         try:
             d = self.dispatch[type(value)]
         except KeyError:
@@ -85,14 +83,14 @@ class Marshaller:
 
     def dump_string(self, value, write, escape):
         write("<value><string>")
-        write(escape(value))       # 替换特殊符号
+        write(escape(value))       
         write("</string></value>\n")
     
 
     def dump_list(self, value, write): # ?????
         write("<value><list>")
 
-    dispatch = {}      # 不同类型的参数使用不同的封装，故按照类型进行分配方法
+    dispatch = {}      
     dispatch[bool] = dump_bool
     dispatch[int] = dump_int
     dispatch[float] = dump_float
@@ -102,7 +100,7 @@ class UnMarshaller:
     def __init__(self):
         self._type = None
         self._stack = []
-        self._marks = []  # 用于后续的list等数据格式的解析
+        self._marks = []  
         self._data = []
         self._flag = False
         self._methodname = None
@@ -168,7 +166,7 @@ class UnMarshaller:
         self._type = "parameter"
  
 
-    def do_methodName(self, data):   #多进程时的可扩展性
+    def do_methodName(self, data):   
         self._methodname = data
         self._type = "methodName"
 
@@ -231,17 +229,16 @@ class ClientRPC:
         self._request_list = []
     
     def __getattr__(self, function):
-        def method(*args):
+        def _method(*args,**kwargs):
             self._request_list.append(function)
-            print(args)
-            print(function)
-            return self._clientstub.dump(args, function)
-        setattr(self, function, method)
-        data = method()
-        print(data)
-        #self.send(data)
-        #response = self.recv()
-        #return response
+            data = self._clientstub.dump(args, function)
+            print(data)
+            self.send(data)
+            response = self.recv()
+            return response
+        setattr(self, function, _method)
+        return _method
+        
 
         
     def init(self,host, port):
@@ -249,7 +246,7 @@ class ClientRPC:
         s = ClientStub()
         self._transport = t
         self._clientstub = s
-       # self._transport.connect(host, port)
+        self._transport.connect(host, port)
     
     def send(self, data):
         self._transport.send(data)

@@ -34,8 +34,9 @@ class RPCStub(object):
             length_prefix = struct.pack("I", len(request))
             self.send(length_prefix) #发送数据的长度
             self.send(request) # 发送数据
-            print("已经发送")
+            # print("客户端数据已经发送")
             data = self.recv(1024) # 接收方法执行后返回的结果
+            # print("客户端已经收到结果")
             return data.decode()
 
         setattr(self, function, _func)

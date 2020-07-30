@@ -140,7 +140,7 @@ class JSONRPC(object):
         if method_name in self.funs_remote.keys():
             f = func_local.Func_local()
             f.connect('127.0.0.1', self.funs_remote[method_name])
-            res_func = f.func(method_name,1,2,3)
+            res_func = f.func(method_name,method_args)
             res_func = json.loads(res_func)
             print("远端服务器返回的数据:",res_func)
             res = res_func['res']

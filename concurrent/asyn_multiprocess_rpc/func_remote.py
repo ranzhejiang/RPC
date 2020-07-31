@@ -5,7 +5,7 @@ class TCPServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def bind_listen(self, port):
-        self.sock.bind(('0.0.0.0', port))
+        self.sock.bind(('127.0.0.1', port))
         self.sock.listen(5)
 
     def accept_receive_close(self):
@@ -28,7 +28,6 @@ class JSONRPC(object):
     def call_method(self, data):
         '''解析数据，调用对应的方法变将该方法执行结果返回'''
         self.from_data(data)
-        print("YT")
         print(data)
         print(self.funs)
         method_name = self.data['method_name']
@@ -48,10 +47,10 @@ class RPCStub(object):
         if name is None:
             name = function.__name__
         self.funs[name] = function
-        print("注册完成")
+        print("函数注册完成")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(("127.0.0.1",6226))
-        data = {name: name}
+        data = {"func_remote": name,"ip_port":3111}
         data = json.dumps(data).encode('utf-8')
         s.sendall(data)
         s.close()
@@ -64,9 +63,8 @@ class Func_server(TCPServer, JSONRPC, RPCStub):
         RPCStub.__init__(self)
 
     def loop(self, port):
-        # 循环监听 2000 端口
         self.bind_listen(port)
-        print('Server listen 2000 ...')
+        print('Server listen 3111 ...')
         while True:
             self.accept_receive_close()
 

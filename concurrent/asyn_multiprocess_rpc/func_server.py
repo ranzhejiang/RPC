@@ -1,11 +1,12 @@
 # func_server.py
+# 远端服务器
 
 import func_remote
 
-def max_num(a, b, c=10):
+def rzj(a, b, c=10):
     
     return max(a,b,c)
 
 s = func_remote.Func_server()
-s.register_function(max_num) # 注册方法
-s.loop(2000) # 传入要监听的端口
+s.register_function(rzj) # 注册方法
+s.loop(3111) # 传入要监听的端口

@@ -1,4 +1,4 @@
-from xmlrpcclient import *
+from xml-rpc.xmlrpcclient import *
 import sys
 import socket
 import urllib

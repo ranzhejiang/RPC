@@ -111,7 +111,7 @@ class UnMarshaller:
         return self._methodname
     
     def start(self, tag, attrs):
-        if tag == "RPCCall":
+        if tag == "RPCResponse":
             self._flag = True
         if self._flag:
             self._data = []
@@ -194,7 +194,7 @@ class ClientStub:
         if methodname:
             data = (
                 xmlheader,
-                "<RPCCall>/n"
+                "<RPCCall>\n"
                 "<methodName>", methodname, "</methodName>\n",
                 data,
                 "</RPCCall>\n"

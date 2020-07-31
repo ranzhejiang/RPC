@@ -16,7 +16,6 @@ def escape(s):
     return s
 
 class Parser:
-    # fast expat parser for Python 2.0 and later.
     def __init__(self, target):
         self._parser = parser = expat.ParserCreate(None, None)
         self._target = target
@@ -212,13 +211,13 @@ class ServerStub:
         arg = u.finish()
         f = self.func_list[function]
         response = f(*arg)
-        return response
+        return response,function
 
     def register_function(self, function, name = None):
         if name is None:
             name = function.__name__
         self.func_list[name] = function
-        print(self.func_list)
+        
 
 
 class Transport:
@@ -254,8 +253,8 @@ class ServerRPC:
         self._request_list = []
     
     def response(self, data):
-        re = self._serverstub.dispatch(data)
-        send = self._serverstub.dump(re,)
+        re, function = self._serverstub.dispatch(data)
+        send = self._serverstub.dump(re, function)
         return send
     
     def init(self, host, port):
@@ -267,7 +266,7 @@ class ServerRPC:
         self._transport.listen()
         self._transport.accept(length = 1024)
 
-    def add_func(self, function, name):
+    def add_func(self, function, name = None):
         self._serverstub.register_function(function, name)
     
     def send(self, data):

@@ -232,10 +232,11 @@ class ClientRPC:
         def _method(*args,**kwargs):
             self._request_list.append(function)
             data = self._clientstub.dump(args, function)
-            print(data)
             self.send(data)
             response = self.recv()
-            return response
+            result = self._clientstub.dispatch(response)
+            for i in range(len(result)):
+                return result[i]
         setattr(self, function, _method)
         return _method
         

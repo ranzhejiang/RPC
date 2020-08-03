@@ -169,7 +169,11 @@ server:
 最终单client对多服务器的架构：
 
 
+
 <img src="docs/figs/mult.png?raw=true" width="600">
+
+
+
 
 ## | **总结和思考**
 
@@ -184,6 +188,9 @@ server:
 ## | **备注**
 
 本次作业的贡献情况：
+
+
+
 <img src="docs/figs/contribute.png?raw=true" width="600">
 
 

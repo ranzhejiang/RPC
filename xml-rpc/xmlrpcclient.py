@@ -5,6 +5,7 @@ from xml.parsers import expat
 from decimal import Decimal
 import io
 import time
+import string
 
 __version__ = '%d.%d' % sys.version_info[:2]
 
@@ -35,18 +36,11 @@ class Parser:
             del self._target, self._parser 
             parser.Parse(b"", True) 
 
-class Marshaller:
-    # xml文件封包器
+class Marshaller:          
     def __init__(self, encoding):
         self.mem = {}
         self.data = None
         self.encoding = encoding
-    
-    dispatch = {}      # 不同类型的参数使用不同的封装，故按照类型进行分配方法
-    dispatch[bool] = dump_bool
-    dispatch[int] = dump_int
-    dispatch[float] = dump_float
-    dispatch[str] = dump_string
 
     def dumps(self, values):
         out = []
@@ -61,8 +55,7 @@ class Marshaller:
         result = "".join(out)
         return result
 
-    def _dump(self, value, write):
-        # 判断能否解析目标参数类型, 并使用对应函数
+    def _dump(self, value, write):      
         try:
             d = self.dispatch[type(value)]
         except KeyError:
@@ -90,18 +83,24 @@ class Marshaller:
 
     def dump_string(self, value, write, escape):
         write("<value><string>")
-        write(escape(value))       # 替换特殊符号
+        write(escape(value))       
         write("</string></value>\n")
     
 
     def dump_list(self, value, write): # ?????
         write("<value><list>")
 
+    dispatch = {}      
+    dispatch[bool] = dump_bool
+    dispatch[int] = dump_int
+    dispatch[float] = dump_float
+    dispatch[str] = dump_string
+
 class UnMarshaller:
     def __init__(self):
         self._type = None
         self._stack = []
-        self._marks = []  # 用于后续的list等数据格式的解析
+        self._marks = []  
         self._data = []
         self._flag = False
         self._methodname = None
@@ -112,7 +111,7 @@ class UnMarshaller:
         return self._methodname
     
     def start(self, tag, attrs):
-        if tag == "RPCCall":
+        if tag == "RPCResponse":
             self._flag = True
         if self._flag:
             self._data = []
@@ -139,16 +138,6 @@ class UnMarshaller:
     
     def finish(self):
         return tuple(self._stack)
- 
-
-    dispatch = {}
-    dispatch["boolean"] = do_boolean
-    dispatch["int"] = do_int
-    dispatch["float"] = do_float
-    dispatch["string"] = do_string
-    dispatch["methodName"] = do_methodName
-    dispatch["parameter"] = do_parameter
-    dispatch["value"] = do_value
 
     def do_boolean(self, data):
         if data == "0":
@@ -166,7 +155,6 @@ class UnMarshaller:
     
 
     def do_string(self, data):
-        data = data.decode(self._encoding)
         self.append(data)
     
 
@@ -178,13 +166,21 @@ class UnMarshaller:
         self._type = "parameter"
  
 
-    def do_methodName(self, data):
-        data = data.decode(self._encoding)
+    def do_methodName(self, data):   
         self._methodname = data
         self._type = "methodName"
 
-    def do_value(self):
+    def do_value(self, data):
         self._type = "value"
+    
+    dispatch = {}
+    dispatch["boolean"] = do_boolean
+    dispatch["int"] = do_int
+    dispatch["float"] = do_float
+    dispatch["string"] = do_string
+    dispatch["methodName"] = do_methodName
+    dispatch["parameter"] = do_parameter
+    dispatch["value"] = do_value
 
     
 
@@ -198,7 +194,7 @@ class ClientStub:
         if methodname:
             data = (
                 xmlheader,
-                "<RPCCall>/n"
+                "<RPCCall>\n"
                 "<methodName>", methodname, "</methodName>\n",
                 data,
                 "</RPCCall>\n"
@@ -233,13 +229,17 @@ class ClientRPC:
         self._request_list = []
     
     def __getattr__(self, function):
-        def method(*args):
+        def _method(*args,**kwargs):
             self._request_list.append(function)
-            return self._clientstub.dump(args, function)
-        setattr(self, function, method)
-        data = method()
-        self.send(data)
-        response = self.recv()
+            data = self._clientstub.dump(args, function)
+            self.send(data)
+            response = self.recv()
+            result = self._clientstub.dispatch(response)
+            for i in range(len(result)):
+                return result[i]
+        setattr(self, function, _method)
+        return _method
+        
 
         
     def init(self,host, port):

@@ -152,6 +152,9 @@ class Marshaller:
 基于xml格式的message的最终结果实例：
 
 client：
+
+
+
 <img src="docs/figs/clientrpc.png?raw=true" width="600">
 <img src="docs/figs/clientexamp.png?raw=true" width="600">
 

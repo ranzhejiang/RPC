@@ -150,13 +150,25 @@ class Marshaller:
 ### **实验结果分析**
 
 基于xml格式的message的最终结果实例：
+
 client：
 <img src="docs/figs/clientrpc.png?raw=true" width="600">
 <img src="docs/figs/clientexamp.png?raw=true" width="600">
+
+
+
+
 server:
+
 <img src="docs/figs/serverrpc.png?raw=true" width="600">
 <img src="docs/figs/serverexamp.png?raw=true" width="600">
+
+
+
+
 最终单client对多服务器的架构：
+
+
 <img src="docs/figs/mult.png?raw=true" width="600">
 
 ## | **总结和思考**
@@ -174,7 +186,11 @@ server:
 本次作业的贡献情况：
 <img src="docs/figs/contribute.png?raw=true" width="600">
 
+
+
 开发过程中，总分支情况图：
+
+
 <img src="docs/figs/gitgraph.png?raw=true" width="600">
 
 具体工作：
